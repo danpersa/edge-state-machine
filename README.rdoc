@@ -4,7 +4,7 @@ The gem is based on Rick Olson's code of ActiveModel::StateMachine,
 axed from ActiveModel in {this
 commit}[http://github.com/rails/rails/commit/db49c706b62e7ea2ab93f05399dbfddf5087ee0c].
 
-And on Krzysiek Heród's gem, {Transitions}{https://github.com/netizer/transitions}, which added Mongoid support.
+And on Krzysiek Heród's gem, {Transitions}[https://github.com/netizer/transitions], which added Mongoid support.
 
 == Installation
 
