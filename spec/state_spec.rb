@@ -7,6 +7,31 @@ class StateTestSubject
   end
 end
 
+class Car
+  include EdgeStateMachine
+
+  state_machine do
+    state :parked
+    state :running
+    state :driving
+
+    event :turn_key do
+      transitions :from => :parked, :to => :running, :on_transition => :start_engine
+    end
+
+    event :start_driving do
+      transitions :from => :parked, :to => :driving, :on_transition => [:start_engine, :loosen_handbrake, :push_gas_pedal]
+    end
+  end
+
+  def event_fired(current_state, new_state, event)
+  end
+
+  %w!start_engine loosen_handbrake push_gas_pedal!.each do |m|
+    define_method(m){}
+  end
+end
+
 def new_state(options={})
   EdgeStateMachine::State.new(@state_name, @options.merge(options))
 end
@@ -52,6 +77,15 @@ describe EdgeStateMachine::State do
       state.call_action(:entering, record)
     end
 
+    it "should send a message to the record for an action if the action is present as a string" do
+      state = new_state(:entering => "foo")
+
+      record = mock
+      record.should_receive(:foo)
+
+      state.call_action(:entering, record)
+    end
+
     it "should call a proc, passing in the record for an action if the action is present" do
       state = new_state(:entering => Proc.new {|r| r.foobar})
 
@@ -91,6 +125,29 @@ describe EdgeStateMachine::State do
       st = EdgeStateMachine::StateTransition.new(opts)
       obj = EdgeStateMachine::StateTransition.new(opts.merge({:to => "blah"}))
       obj.should_not == st
+    end
+  end
+
+  describe "state transition callbacks" do
+    before do
+      @car = Car.new
+    end
+
+    it "should execute callback defined via 'on_transition'" do
+      @car.should_receive(:start_engine)
+      @car.turn_key!
+    end
+
+    it "should execute multiple callbacks defined via 'on_transition' in the same order they were defined" do
+      @car.should_receive(:start_engine).ordered
+      @car.should_receive(:loosen_handbrake).ordered
+      @car.should_receive(:push_gas_pedal).ordered
+      @car.start_driving!
+    end
+
+    it "should pass event when calling event_fired_callback" do
+      @car.should_receive(:event_fired).with(:parked, :driving, :start_driving)
+      @car.start_driving!
     end
   end
 
