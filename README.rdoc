@@ -1,3 +1,7 @@
+= Travis Build Status
+
+{<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
+
 = Edge State Machine
 
 The gem is based on Rick Olson's code of ActiveModel::StateMachine,
