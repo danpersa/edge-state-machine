@@ -1,4 +1,4 @@
-require 'mongoid_helper'
+require 'mongoid/mongoid_helper'
 
 class MongoTrafficLight
   include Mongoid::Document

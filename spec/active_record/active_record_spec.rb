@@ -1,4 +1,4 @@
-require 'active_record_helper'
+require 'active_record/active_record_helper'
 
 ActiveRecord::Base.establish_connection(:adapter  => "sqlite3", :database => ":memory:")
 
