@@ -1,7 +1,7 @@
 require "edge-state-machine/event"
 require "edge-state-machine/machine"
 require "edge-state-machine/state"
-require "edge-state-machine/state_transition"
+require "edge-state-machine/transition"
 require "edge-state-machine/version"
 
 
@@ -37,7 +37,9 @@ module EdgeStateMachine
     def define_state_query_method(state_name)
       name = "#{state_name}?"
       undef_method(name) if method_defined?(name)
-      class_eval "def #{name}; current_state.to_s == %(#{state_name}) end"
+      define_method(name) do
+        current_state.to_s == state_name.to_s
+      end
     end
   end
 

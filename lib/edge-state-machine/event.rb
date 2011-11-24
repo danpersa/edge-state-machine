@@ -54,7 +54,7 @@ module EdgeStateMachine
 
     def transitions(trans_opts)
       Array(trans_opts[:from]).each do |s|
-        @transitions << StateTransition.new(trans_opts.merge({:from => s.to_sym}))
+        @transitions << Transition.new(trans_opts.merge({:from => s.to_sym}))
       end
     end
   end

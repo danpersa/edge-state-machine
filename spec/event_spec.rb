@@ -42,9 +42,9 @@ describe EdgeStateMachine::Event do
     @success.should == @event.success
   end
 
-  it "should create StateTransitions" do
-    EdgeStateMachine::StateTransition.should_receive(:new).with(:to => :closed, :from => :open)
-    EdgeStateMachine::StateTransition.should_receive(:new).with(:to => :closed, :from => :received)
+  it "should create Transitions" do
+    EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => :open)
+    EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => :received)
     new_event
   end
 
