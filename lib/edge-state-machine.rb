@@ -4,11 +4,9 @@ require "edge-state-machine/state"
 require "edge-state-machine/transition"
 require "edge-state-machine/version"
 
-
 module EdgeStateMachine
-  class InvalidTransition < Exception
-
-  end
+  class InvalidTransition     < StandardError; end
+  class InvalidMethodOverride < StandardError; end
 
   module ClassMethods
     def inherited(klass)

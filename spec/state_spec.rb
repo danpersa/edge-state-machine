@@ -7,6 +7,31 @@ class StateTestSubject
   end
 end
 
+class Car
+  include EdgeStateMachine
+
+  state_machine do
+    state :parked
+    state :running
+    state :driving
+
+    event :turn_key do
+      transitions :from => :parked, :to => :running, :on_transition => :start_engine
+    end
+
+    event :start_driving do
+      transitions :from => :parked, :to => :driving, :on_transition => [:start_engine, :loosen_handbrake, :push_gas_pedal]
+    end
+  end
+
+  def event_fired(current_state, new_state, event)
+  end
+
+  %w!start_engine loosen_handbrake push_gas_pedal!.each do |m|
+    define_method(m){}
+  end
+end
+
 def new_state(options={})
   EdgeStateMachine::State.new(@state_name, @options.merge(options))
 end
@@ -48,6 +73,15 @@ describe EdgeStateMachine::State do
     state = new_state(:entering => :foo)
     record = mock
     record.should_receive(:foo)
+    state.call_action(:entering, record)
+  end
+
+  it "should send a message to the record for an action if the action is present as a string" do
+    state = new_state(:entering => "foo")
+
+    record = mock
+    record.should_receive(:foo)
+
     state.call_action(:entering, record)
   end
 

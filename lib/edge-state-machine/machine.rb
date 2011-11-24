@@ -2,7 +2,7 @@ module EdgeStateMachine
   class Machine
     attr_writer :initial_state
     attr_accessor :states, :events, :state_index
-    attr_reader :klass, :name
+    attr_reader :klass, :name, :auto_scopes
 
     def initialize(klass, name, options = {}, &block)
       @klass, @name, @states, @state_index, @events = klass, name, [], {}, {}
@@ -15,7 +15,9 @@ module EdgeStateMachine
 
     def update(options = {}, &block)
       @initial_state = options[:initial] if options.key?(:initial)
+      @auto_scopes = options[:auto_scopes]
       instance_eval(&block) if block
+      include_scopes if @auto_scopes && defined?(ActiveRecord::Base) && @klass < ActiveRecord::Base
       self
     end
 
@@ -25,7 +27,7 @@ module EdgeStateMachine
         state_index[new_state].call_action(:enter, record)
 
         if record.respond_to?(event_fired_callback)
-          record.send(event_fired_callback, record.current_state, new_state)
+          record.send(event_fired_callback, record.current_state, new_state, event)
         end
 
         record.current_state(@name, new_state, persist)
@@ -69,6 +71,14 @@ module EdgeStateMachine
 
     def event_failed_callback
       @event_failed_callback ||= (@name == :default ? '' : "#{@name}_") + 'event_failed'
+    end
+
+    def include_scopes
+      @states.each do |state|
+        state_name = state.name.to_s
+        raise InvalidMethodOverride if @klass.respond_to?(state_name)
+        @klass.scope state_name, @klass.where(:state => state_name)
+      end
     end
   end
 end

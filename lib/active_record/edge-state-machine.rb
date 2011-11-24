@@ -4,7 +4,7 @@ module ActiveRecord
 
     included do
       include ::EdgeStateMachine
-      before_validation :set_initial_state
+      after_initialize :set_initial_state
       validates_presence_of :state
       validate :state_inclusion
     end
