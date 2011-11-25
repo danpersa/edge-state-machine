@@ -1,14 +1,9 @@
-= Travis Build Status
-
-{<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
-
 = Edge State Machine
 
-The gem is based on Rick Olson's code of ActiveModel::StateMachine,
-axed from ActiveModel in {this
-commit}[http://github.com/rails/rails/commit/db49c706b62e7ea2ab93f05399dbfddf5087ee0c].
+Edge state machine wants to be a complete state machine solution.
+It offers support for ActiveRecord and Mongoid
 
-And on Krzysiek Heród's gem, {Transitions}[https://github.com/netizer/transitions], which added Mongoid support.
+{<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
 == Installation
 
@@ -61,3 +56,11 @@ If you're using Rails + Mongoid + Bundler
       transitions :to => :available, :from => [:out_of_stock], :on_transition => :send_alerts
     end
   end
+
+= Credits
+
+The gem is based on Rick Olson's code of ActiveModel::StateMachine,
+axed from ActiveModel in {this
+commit}[http://github.com/rails/rails/commit/db49c706b62e7ea2ab93f05399dbfddf5087ee0c].
+
+And on Krzysiek Heród's gem, {Transitions}[https://github.com/netizer/transitions], which added Mongoid support.
