@@ -1,5 +1,5 @@
 module EdgeStateMachine
-  class StateTransition
+  class Transition
     attr_reader :from, :to, :options
 
     def initialize(opts)
