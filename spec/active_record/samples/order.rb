@@ -16,32 +16,32 @@ class Order < ActiveRecord::Base
 
     # no timestamp col is being specified here - should be ignored
     event :place do
-      transitions :from => :opened, :to => :placed
+      transition :from => :opened, :to => :placed
     end
 
     # should set paid_at timestamp
-    event :pay, :timestamp => true do
-      transitions :from => :placed, :to => :paid
+    event :pay do
+      transition :from => :placed, :to => :paid
     end
 
     # should set prepared_on
-    event :prepare, :timestamp => true do
-      transitions :from => :paid, :to => :prepared
+    event :prepare do
+      transition :from => :paid, :to => :prepared
     end
 
     # should set dispatched_at
-    event :deliver, :timestamp => "dispatched_at" do
-      transitions :from => :prepared, :to => :delivered
+    event :deliver do
+      transition :from => :prepared, :to => :delivered
     end
 
     # should set cancellation_date
-    event :cancel, :timestamp => :cancellation_date do
-      transitions :from => [:placed, :paid, :prepared], :to => :cancelled
+    event :cancel do
+      transition :from => [:placed, :paid, :prepared], :to => :cancelled
     end
 
     # should raise an exception as there is no timestamp col
-    event :reopen, :timestamp => true do
-      transitions :from => :cancelled, :to => :opened
+    event :reopen do
+      transition :from => :cancelled, :to => :opened
     end
   end
 end

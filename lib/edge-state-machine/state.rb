@@ -2,44 +2,46 @@ module EdgeStateMachine
   class State
     attr_reader :name, :options
 
-    def initialize(name, options = {})
+    def initialize(name, &block)
       @name = name
-      if machine = options.delete(:machine)
-        machine.klass.define_state_query_method(name)
-      end
-      update(options)
+      @options = Hash.new
+      instance_eval(&block) if block_given?
     end
 
-    def ==(state)
-      if state.is_a? Symbol
-        name == state
-      else
-        name == state.name
-      end
+    def enter(method = nil, &block)
+      @options[:enter] = method.nil? ? block : method
     end
 
-    def call_action(action, record)
-      action = @options[action]
+    def exit(method = nil, &block)
+      @options[:exit] = method.nil? ? block : method
+    end
+
+    def execute_action(action, base)
+      action = @options[action.to_sym]
       case action
       when Symbol, String
-        record.send(action)
+        base.send(action)
       when Proc
-        action.call(record)
+        action.call(base)
       end
+    end
+
+    def use_display_name(display_name)
+      @display_name = display_name
     end
 
     def display_name
       @display_name ||= name.to_s.gsub(/_/, ' ').capitalize
     end
 
-    def for_select
-      [display_name, name.to_s]
-    end
-
-    def update(options = {})
-      @display_name = options.delete(:display) if options.key?(:display)
-      @options = options
-      self
+    def ==(state)
+      if state.is_a? Symbol
+        name == state
+      elsif state.is_a? String
+        name == state
+      else
+        name == state.name
+      end
     end
   end
 end

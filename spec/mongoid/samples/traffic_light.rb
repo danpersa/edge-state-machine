@@ -7,6 +7,8 @@ class MongoTrafficLight
   field :state
 
   state_machine do
+    create_scopes true
+    persisted_to :state
     state :off
 
     state :red
@@ -14,19 +16,19 @@ class MongoTrafficLight
     state :yellow
 
     event :red_on do
-      transitions :to => :red, :from => [:yellow]
+      transition :to => :red, :from => [:yellow]
     end
 
     event :green_on do
-      transitions :to => :green, :from => [:red]
+      transition :to => :green, :from => [:red]
     end
 
     event :yellow_on do
-      transitions :to => :yellow, :from => [:green]
+      transition :to => :yellow, :from => [:green]
     end
 
     event :reset do
-      transitions :to => :red, :from => [:off]
+      transition :to => :red, :from => [:off]
     end
   end
 end

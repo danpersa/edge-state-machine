@@ -2,11 +2,15 @@ require "edge-state-machine/event"
 require "edge-state-machine/machine"
 require "edge-state-machine/state"
 require "edge-state-machine/transition"
+require "edge-state-machine/exception"
 require "edge-state-machine/version"
 
 module EdgeStateMachine
-  class InvalidTransition     < StandardError; end
-  class InvalidMethodOverride < StandardError; end
+
+  def self.included(base)
+    base.extend(ClassMethods)
+    base.send :include, InstanceMethods
+  end
 
   module ClassMethods
     def inherited(klass)
@@ -22,52 +26,63 @@ module EdgeStateMachine
       @state_machines = value ? value.dup : nil
     end
 
-    def state_machine(name = nil, options = {}, &block)
-      if name.is_a?(Hash)
-        options = name
-        name    = nil
-      end
-      name ||= :default
-      state_machines[name] ||= Machine.new(self, name)
-      block ? state_machines[name].update(options, &block) : state_machines[name]
-    end
+    def state_machine(name = :default, &block)
+      machine = Machine.new(self, name, &block)
+      state_machines[name] ||= machine
 
-    def define_state_query_method(state_name)
-      name = "#{state_name}?"
-      undef_method(name) if method_defined?(name)
-      define_method(name) do
-        current_state.to_s == state_name.to_s
+      machine.persisted_variable_name ||= :state
+
+      machine.states.values.each do |state|
+        state_name = state.name
+        define_method "#{state_name}?" do
+          state_name == current_state(name).name
+        end
+        add_scope(state, name) if machine.create_scopes?
+      end
+
+      machine.events.keys.each do |key|
+        define_method "#{key}" do
+          fire_event(machine.name, {:save => false}, key)
+        end
+
+        define_method "#{key}!" do
+          fire_event(machine.name, {:save => true}, key)
+        end
       end
     end
   end
 
-  def self.included(base)
-    base.extend(ClassMethods)
-  end
+  module InstanceMethods
+    attr_writer :current_state
 
-  def current_state(name = nil, new_state = nil, persist = false)
-    sm   = self.class.state_machine(name)
-    ivar = sm.current_state_variable
-    if name && new_state
-      if persist && respond_to?(:write_state)
-        write_state(sm, new_state)
+    def initial_state_name(name = :default)
+      machine = self.class.state_machines[name]
+      return machine.initial_state_name
+    end
+
+    def current_state(name = :default)
+      @current_states ||= {}
+      machine = self.class.state_machines[name]
+      if (respond_to? :load_from_persistence)
+        @current_states[name] ||= self.class.state_machines[name].states[load_from_persistence(name).to_sym]
       end
+      @current_states[name] ||= machine.states[machine.initial_state_name]
+    end
 
-      if respond_to?(:write_state_without_persistence)
-        write_state_without_persistence(sm, new_state)
-      end
+    def current_state_name(name = :default)
+      current_state(name).name
+    end
 
-      instance_variable_set(ivar, new_state)
-    else
-      instance_variable_set(ivar, nil) unless instance_variable_defined?(ivar)
-      value = instance_variable_get(ivar)
-      return value if value
+    def fire_event(name = :default, options = {}, event_name)
+      machine = self.class.state_machines[name]
+      event = machine.events[event_name]
+      raise Stateflow::NoEventFound.new("No event matches #{event_name}") if event.nil?
+      event.fire(self, options)
+    end
 
-      if respond_to?(:read_state)
-        value = instance_variable_set(ivar, read_state(sm))
-      end
-
-      value || sm.initial_state
+    def set_current_state(new_state, machine_name = :default, options = {})
+      save_to_persistence(new_state.name.to_s, machine_name, options) if self.respond_to? :save_to_persistence
+      @current_states[machine_name] = new_state
     end
   end
 end

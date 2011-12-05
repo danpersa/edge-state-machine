@@ -27,7 +27,7 @@ describe "mongoid state machine" do
       @light.reset
       @light.current_state.should == :red
       @light.reload
-      @light.state.should == "off"
+      @light.state.should == :off
     end
 
     it "should persists state on transition" do
@@ -37,8 +37,14 @@ describe "mongoid state machine" do
       @light.state.should == "red"
     end
 
+    it "should initialize the current state when loaded from database" do
+      @light.reset!
+      loaded_light = MongoTrafficLight.find(@light.id)
+      loaded_light.current_state.should == :red
+    end
+
     it "should raise error on transition to an invalid state" do
-      expect { @light.yellow_on }.should raise_error EdgeStateMachine::InvalidTransition
+      expect { @light.yellow_on }.should raise_error EdgeStateMachine::NoTransitionFound
       @light.current_state.should == :off
     end
 
@@ -51,8 +57,8 @@ describe "mongoid state machine" do
     end
 
     it "should not validate when try transition with wrong state " do
-      for s in @light.class.state_machine.states
-        @light.state = s.name
+      for s in @light.class.state_machines[:default].states.keys
+        @light.state = s
         @light.valid?.should == true
       end
       @light.state = "invalid_one"
@@ -64,18 +70,37 @@ describe "mongoid state machine" do
       expect {validating_light.reset!}.should raise_error Mongoid::Errors::Validations
     end
 
-    #it "should state query method used in a validation condition" do
-      #validating_light = MongoConditionalValidatingTrafficLight.create!
+    it "should state query method used in a validation condition" do
+      validating_light = MongoConditionalValidatingTrafficLight.create!
       #expect {validating_light.reset!}.should raise_error Mongoid::RecordInvalid
-      #validating_light.off?.should == true
-    #end
+      validating_light.off?.should == true
+    end
 
     it "should reload the model when current state resets" do
       @light.reset
       @light.red?.should == true
       @light.update_attribute(:state, 'green')
-      @light.reload.green?.should == false # reloaded state should come from instance variable not from database
-      # because the state can be changed without persist
+      @light.reload.green?.should == true # reloaded state should come from database
+    end
+
+    describe "scopes" do
+      it "should be added for each state" do
+        MongoTrafficLight.should respond_to(:off)
+        MongoTrafficLight.should respond_to(:red)
+      end
+
+      it "should not be added for each state" do
+        #MongoTrafficLightNoScope.should_not respond_to(:off)
+        #MongoTrafficLightNoScope.should_not respond_to(:red)
+      end
+
+      it "should behave like scopes" do
+        3.times { MongoTrafficLight.create(:state => "off") }
+        3.times { MongoTrafficLight.create(:state => "red") }
+        # one was created before
+        MongoTrafficLight.off.count.should == 4
+        MongoTrafficLight.red.count.should == 3
+      end
     end
   end
 
@@ -103,55 +128,6 @@ describe "mongoid state machine" do
       @order = create_order
       expect { @order.place! }.should_not raise_error
       @order.state.should == "placed"
-    end
-
-    it "should set paid_at when moving to paid" do
-      @order = create_order(:placed)
-      @order.pay!
-      @order.reload
-      @order.paid_at.should_not be_nil
-    end
-
-    it "should set prepared_on when moving to prepared" do
-      @order = create_order(:paid)
-      @order.prepare!
-      @order.reload
-      @order.prepared_on.should_not be_nil
-    end
-
-    it "should set dispatched_at when moving to delivered" do
-      @order = create_order(:prepared)
-      @order.deliver!
-      @order.reload
-      @order.dispatched_at.should_not be_nil
-    end
-
-    it "should set cancellation_date when moving to cancelled" do
-      @order = create_order(:placed)
-      @order.cancel!
-      @order.reload
-      @order.cancellation_date.should_not be_nil
-    end
-
-    it "should raise an exception as there is no attribute when moving to reopened" do
-      @order = create_order(:cancelled)
-      expect { @order.re_open! }.should raise_error NoMethodError
-      @order.reload
-    end
-
-    it "should raise an exception when passing an invalid value to timestamp options" do
-      expect {
-        class MongoOrder
-          include Mongoid::Document
-          include Mongoid::EdgeStateMachine
-
-          state_machine do
-            event :replace, timestamp: 1 do
-              transitions :from => :prepared, :to => :placed
-            end
-          end
-        end
-      }.should raise_error ArgumentError
     end
   end
 end

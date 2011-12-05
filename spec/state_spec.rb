@@ -16,11 +16,11 @@ class Car
     state :driving
 
     event :turn_key do
-      transitions :from => :parked, :to => :running, :on_transition => :start_engine
+      transition :from => :parked, :to => :running, :on_transition => :start_engine
     end
 
     event :start_driving do
-      transitions :from => :parked, :to => :driving, :on_transition => [:start_engine, :loosen_handbrake, :push_gas_pedal]
+      transition :from => :parked, :to => :driving, :on_transition => [:start_engine, :loosen_handbrake, :push_gas_pedal]
     end
   end
 
@@ -33,7 +33,7 @@ class Car
 end
 
 def new_state(options={})
-  EdgeStateMachine::State.new(@state_name, @options.merge(options))
+  EdgeStateMachine::State.new(@state_name)
 end
 
 describe EdgeStateMachine::State do
@@ -41,7 +41,6 @@ describe EdgeStateMachine::State do
   before do
     @state_name = :astate
     @machine = StateTestSubject.state_machine
-    @options = { :crazy_custom_key => "key", :machine => @machine }
   end
 
   it "should set the name" do
@@ -52,13 +51,14 @@ describe EdgeStateMachine::State do
     new_state.display_name.should == "Astate"
   end
 
-  it "should set the display_name from options" do
-    new_state(:display => "A State").display_name.should == "A State"
+  it "should set the display_name from method" do
+    state = new_state
+    state.use_display_name('A State')
+    state.display_name.should == 'A State'
   end
 
   it "should set the options and expose them as options" do
-    @options.delete(:machine)
-    new_state.options.should == @options
+    new_state.options.should_not == nil
   end
 
   it "should be equal to a symbol of the same name" do
@@ -70,27 +70,32 @@ describe EdgeStateMachine::State do
   end
 
   it "should send a message to the record for an action if the action is present as a symbol" do
-    state = new_state(:entering => :foo)
+    state = new_state
+    state.enter :foo
+    
     record = mock
     record.should_receive(:foo)
-    state.call_action(:entering, record)
+    
+    state.execute_action(:enter, record)
   end
 
   it "should send a message to the record for an action if the action is present as a string" do
-    state = new_state(:entering => "foo")
+    state = new_state
+    state.enter "foo"
 
     record = mock
     record.should_receive(:foo)
 
-    state.call_action(:entering, record)
+    state.execute_action(:enter, record)
   end
 
   it "should call a proc, passing in the record for an action if the action is present" do
-    state = new_state(:entering => Proc.new {|r| r.foobar})
+    state = new_state
+    state.exit Proc.new {|r| r.foobar}
 
     record = mock
     record.should_receive(:foobar)
 
-    state.call_action(:entering, record)
+    state.execute_action(:exit, record)
   end
 end

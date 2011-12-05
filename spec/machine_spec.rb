@@ -8,17 +8,20 @@ class MachineTestSubject
     state :closed
   end
 
-  state_machine :initial => :foo do
+  state_machine do
+    initial_state :open
+
     event :shutdown do
-      transitions :from => :open, :to => :closed
+      transition :from => :open, :to => :closed
     end
 
     event :timeout do
-      transitions :from => :open, :to => :closed
+      transition :from => :open, :to => :closed
     end
   end
 
-  state_machine :extra, :initial => :bar do
+  state_machine :extra do
+    initial_state :bar
   end
 end
 
@@ -28,17 +31,11 @@ describe EdgeStateMachine::Machine do
     MachineTestSubject.state_machines.size.should == 2
   end
 
-  it "should set #initial_state from :initial option" do
-    MachineTestSubject.state_machine(:extra).initial_state.should == :bar
+  it "should set #initial_state_name from initial_state method" do
+    MachineTestSubject.state_machines[:extra].initial_state_name.should == :bar
   end
 
-  it "should accesse non-default state machine" do
-    MachineTestSubject.state_machine(:extra).class.should == EdgeStateMachine::Machine
-  end
-
-  it "should find event for given state" do
-    events = MachineTestSubject.state_machine.events_for(:open)
-    events.should be_include(:shutdown)
-    events.should be_include(:timeout)
+  it "should access non-default state machine" do
+    MachineTestSubject.state_machines[:extra].class.should == EdgeStateMachine::Machine
   end
 end

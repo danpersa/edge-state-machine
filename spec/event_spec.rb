@@ -9,7 +9,7 @@ class ArgumentsTestSubject
     state :opened
 
     event :open do
-      transitions :from => :initial, :to => :opened, :on_transition => :update_date
+      transition :from => :initial, :to => :opened, :on_transition => :update_date
     end
   end
 
@@ -19,8 +19,8 @@ class ArgumentsTestSubject
 end
 
 def new_event
-  @event = EdgeStateMachine::Event.new(nil, @state_name, {:success => @success}) do
-    transitions :to => :closed, :from => [:open, :received]
+  @event = EdgeStateMachine::Event.new(@state_name, nil) do
+    transition :to => :closed, :from => [:open, :received]
   end
 end
 
@@ -29,8 +29,8 @@ describe EdgeStateMachine::Event do
   before do
     @state_name = :close_order
     @success = :success_callback
-    @event = EdgeStateMachine::Event.new(nil, @state_name, {:success => @success}) do
-      transitions :to => :closed, :from => [:open, :received]
+    @event = EdgeStateMachine::Event.new(@state_name, nil) do
+      transition :to => :closed, :from => [:open, :received]
     end
   end
 
@@ -38,13 +38,8 @@ describe EdgeStateMachine::Event do
     @state_name.should == @event.name
   end
 
-  it "should set the success option" do
-    @success.should == @event.success
-  end
-
   it "should create Transitions" do
-    EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => :open)
-    EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => :received)
+    EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => [:open, :received])
     new_event
   end
 
@@ -52,25 +47,22 @@ describe EdgeStateMachine::Event do
     it "should pass arguments to transition method" do
       subject = ArgumentsTestSubject.new
       subject.current_state.should == :initial
-      subject.open!(Date.strptime('2001-02-03', '%Y-%m-%d'))
+      subject.open!
       subject.current_state.should == :opened
-      subject.date.should == Date.strptime('2001-02-03', '%Y-%m-%d')
     end
   end
 
   describe "events being fired" do
-    it "should raise an EdgeStateMachine::InvalidTransition error if the transitions are empty" do
-      event = EdgeStateMachine::Event.new(nil, :event)
-      expect {event.fire(nil)}.should raise_error EdgeStateMachine::InvalidTransition
+    before do
+      @machine = mock
+      @machine.stub!(:name).and_return(:default)
     end
 
-    it "should return the state of the first matching transition it finds" do
-      event = EdgeStateMachine::Event.new(nil, :event) do
-        transitions :to => :closed, :from => [:open, :received]
-      end
+    it "should raise an EdgeStateMachine::NoTransitionFound error if the transitions are empty" do
+      event = EdgeStateMachine::Event.new(:event, @machine)
       obj = mock
       obj.stub!(:current_state).and_return(:open)
-      event.fire(obj).should == :closed
+      expect {event.fire(obj)}.should raise_error EdgeStateMachine::NoTransitionFound
     end
   end
 end

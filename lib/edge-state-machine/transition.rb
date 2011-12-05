@@ -3,36 +3,37 @@ module EdgeStateMachine
     attr_reader :from, :to, :options
 
     def initialize(opts)
-      @from, @to, @guard, @on_transition = opts[:from], opts[:to], opts[:guard], opts[:on_transition]
-      @options = opts
+      @from, @to, @guard, @on_transition = [opts[:from]].flatten, [opts[:to]].flatten, opts[:guard], [opts[:on_transition]].flatten
     end
 
-    def perform(obj)
-      case @guard
-      when Symbol, String
-        obj.send(@guard)
-      when Proc
-        @guard.call(obj)
+    def find_next_state(obj)
+      # if we have many states we can go but no guard
+      if @guard.nil? && @to.size > 1
+        raise NoGuardFound.new("There are many possible 'to' states but there is no 'guard' to decide which state to go")
+      end
+      if @guard
+        return execute_action(@guard, obj)
       else
-        true
+        return @to.first
       end
     end
 
-    def execute(obj, *args)
-      case @on_transition
-      when Symbol, String
-        obj.send(@on_transition, *args)
-      when Proc
-        @on_transition.call(obj, *args)
-      when Array
-        @on_transition.each do |callback|
-          # Yes, we're passing always the same parameters for each callback in here.
-          # We should probably drop args altogether in case we get an array.
-          obj.send(callback, *args)
+    def possible?(obj)
+      next_state = find_next_state(obj)
+      return true if @to.include? next_state
+      false
+    end
+
+    def execute(obj)
+      @on_transition.each do |transition|
+        case transition
+        when Symbol, String
+          obj.send(transition)
+        when Proc
+          transition.call(obj)
+        else
+          raise ArgumentError, "You can only pass a Symbol, a String or a Proc to 'on_transition' - got #{transition.class}." unless transition.nil?
         end
-      else
-        # TODO We probably should check for this in the constructor and not that late.
-        raise ArgumentError, "You can only pass a Symbol, a String, a Proc or an Array to 'on_transition' - got #{@on_transition.class}." unless @on_transition.nil?
       end
     end
 
@@ -40,8 +41,14 @@ module EdgeStateMachine
       @from == obj.from && @to == obj.to
     end
 
-    def from?(value)
-      @from == value
+    private
+    def execute_action(action, base)
+      case action
+      when Symbol, String
+        base.send(action)
+      when Proc
+        action.call(base)
+      end
     end
   end
 end
