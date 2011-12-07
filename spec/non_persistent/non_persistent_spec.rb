@@ -30,7 +30,7 @@ describe User do
     user.current_state_name.should == :pending
   end
 
-  it "should have an event trigger method" do
+  it 'should have an event trigger method' do
     user.should respond_to :activate
   end
 

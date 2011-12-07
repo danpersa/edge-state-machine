@@ -34,17 +34,17 @@ describe EdgeStateMachine::Event do
     end
   end
 
-  it "should set the name" do
+  it 'should set the name' do
     @state_name.should == @event.name
   end
 
-  it "should create Transitions" do
+  it 'should create Transitions' do
     EdgeStateMachine::Transition.should_receive(:new).with(:to => :closed, :from => [:open, :received])
     new_event
   end
 
-  describe "event arguments" do
-    it "should pass arguments to transition method" do
+  describe 'event arguments' do
+    it 'should pass arguments to transition method' do
       subject = ArgumentsTestSubject.new
       subject.current_state.should == :initial
       subject.open!
@@ -52,13 +52,13 @@ describe EdgeStateMachine::Event do
     end
   end
 
-  describe "events being fired" do
+  describe 'events being fired' do
     before do
       @machine = mock
       @machine.stub!(:name).and_return(:default)
     end
 
-    it "should raise an EdgeStateMachine::NoTransitionFound error if the transitions are empty" do
+    it 'should raise an EdgeStateMachine::NoTransitionFound error if the transitions are empty' do
       event = EdgeStateMachine::Event.new(:event, @machine)
       obj = mock
       obj.stub!(:current_state).and_return(:open)

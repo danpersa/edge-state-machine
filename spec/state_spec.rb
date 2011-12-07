@@ -43,33 +43,33 @@ describe EdgeStateMachine::State do
     @machine = StateTestSubject.state_machine
   end
 
-  it "should set the name" do
+  it 'should set the name' do
     new_state.name.should == :astate
   end
 
-  it "should set the display_name from name" do
-    new_state.display_name.should == "Astate"
+  it 'should set the display_name from name' do
+    new_state.display_name.should == 'Astate'
   end
 
-  it "should set the display_name from method" do
+  it 'should set the display_name from method' do
     state = new_state
     state.use_display_name('A State')
     state.display_name.should == 'A State'
   end
 
-  it "should set the options and expose them as options" do
+  it 'should set the options and expose them as options' do
     new_state.options.should_not == nil
   end
 
-  it "should be equal to a symbol of the same name" do
+  it 'should be equal to a symbol of the same name' do
     new_state.should == :astate
   end
 
-  it "should be equal with a State with the same name" do
+  it 'should be equal with a State with the same name' do
     new_state.should == new_state
   end
 
-  it "should send a message to the record for an action if the action is present as a symbol" do
+  it 'should send a message to the record for an action if the action is present as a symbol' do
     state = new_state
     state.enter :foo
     
@@ -79,9 +79,9 @@ describe EdgeStateMachine::State do
     state.execute_action(:enter, record)
   end
 
-  it "should send a message to the record for an action if the action is present as a string" do
+  it 'should send a message to the record for an action if the action is present as a string' do
     state = new_state
-    state.enter "foo"
+    state.enter 'foo'
 
     record = mock
     record.should_receive(:foo)
@@ -89,7 +89,7 @@ describe EdgeStateMachine::State do
     state.execute_action(:enter, record)
   end
 
-  it "should call a proc, passing in the record for an action if the action is present" do
+  it 'should call a proc, passing in the record for an action if the action is present' do
     state = new_state
     state.exit Proc.new {|r| r.foobar}
 

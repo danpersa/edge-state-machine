@@ -31,11 +31,11 @@ describe EdgeStateMachine::Machine do
     MachineTestSubject.state_machines.size.should == 2
   end
 
-  it "should set #initial_state_name from initial_state method" do
+  it 'should set #initial_state_name from initial_state method' do
     MachineTestSubject.state_machines[:extra].initial_state_name.should == :bar
   end
 
-  it "should access non-default state machine" do
+  it 'should access non-default state machine' do
     MachineTestSubject.state_machines[:extra].class.should == EdgeStateMachine::Machine
   end
 end
