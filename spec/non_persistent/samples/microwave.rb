@@ -50,5 +50,6 @@ class Microwave
   end
 
   def light_on
+    p 'light on'
   end
 end
