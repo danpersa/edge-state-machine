@@ -1,7 +1,7 @@
 = Edge State Machine
 
 Edge state machine wants to be a complete state machine solution.
-It offers support for ActiveRecord and Mongoid
+It offers support for ActiveRecord and Mongoid for persistence
 
 {<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
@@ -65,7 +65,6 @@ If you're using Rails + Mongoid + Bundler
   end
 
 == State Machine Examples
-We start implementing the State Machine, by giving some examples of state machines we want to run.
 
   class Microwave
     state_machine :microwave do  # name should be optional, if the name is not present, it should have a default name
@@ -157,6 +156,14 @@ We start implementing the State Machine, by giving some examples of state machin
       end
     end    
   end
+
+=== Other Examples
+
+For other (more complex) examples, please check the following links:
+
+* {Examples without Persistence}[https://github.com/danpersa/edge-state-machine/tree/master/spec/non_persistent/samples]
+* {Examples with ActiveRecord}[https://github.com/danpersa/edge-state-machine/tree/master/spec/active_record/samples]
+* {Examples with Mongoid}[https://github.com/danpersa/edge-state-machine/tree/master/spec/mongoid/samples]
 
 == Notes
 
