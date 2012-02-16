@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["Dan Persa"]
   s.email       = ["dan.persa@gmail.com"]
   s.homepage    = "http://github.com/danpersa/edge-state-machine"
-  s.summary     = %q{State machine extracted from ActiveModel}
-  s.description = %q{Lightweight state machine extracted from ActiveModel}
+  s.summary     = %q{Edge State Machine}
+  s.description = %q{Edge State Machine is a complete state machine solution. It offers support for ActiveRecord and Mongoid for persistence.}
 
   s.rubyforge_project = "edge-state-machine"
 

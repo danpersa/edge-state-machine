@@ -1,7 +1,7 @@
 = Edge State Machine
 
-Edge state machine wants to be a complete state machine solution.
-It offers support for ActiveRecord and Mongoid for persistence
+Edge State Machine is a complete state machine solution.
+It offers support for ActiveRecord and Mongoid for persistence.
 
 {<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
