@@ -6,11 +6,14 @@ It offers support for ActiveRecord and Mongoid for persistence
 {<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
 == Supported Features
- * Multiple state machines per class each of them acting independently
- * Find errors in state machine definitions as early as possible
- * Transition guards
- * Multiple actions executed on transitions
- * Multiple actions executed on entering and exiting a state
+
+* Multiple state machines per class each of them acting independently
+* Find errors in state machine definitions as early as possible
+* Transition guards
+* Multiple actions executed on transitions
+* Multiple actions executed on entering and exiting a state
+* No other dependencies for non-persistent state machines
+* Minimal dependencies for persistent ones
 
 == Installation
 
