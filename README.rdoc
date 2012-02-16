@@ -66,6 +66,8 @@ If you're using Rails + Mongoid + Bundler
 
 == State Machine Examples
 
+=== Microwave State Machine
+
   class Microwave
     state_machine :microwave do  # name should be optional, if the name is not present, it should have a default name
                                  # we give state machines names, so we can pun many machines inside a class
@@ -101,11 +103,14 @@ If you're using Rails + Mongoid + Bundler
       end
 
       event :close_door do
-        transition :from => :door_opened, :to => :door_closed, :on_transition => :put_food_in_the_microwave # we can put many actions in an Array for the on_transition parameter
+        transition :from => :door_opened, :to => :door_closed,
+                   :on_transition => :put_food_in_the_microwave # we can put many actions in an Array for the on_transition parameter
       end
 
       event :start do
-        transition :from => :door_closed, :to => [:started, :started_in_grill_mode], :on_transition => :start_spinning_the_food, :guard => :grill_button_pressed?    # the method grill_button_pressed? should choose the next state 
+        transition :from => :door_closed, :to => [:started, :started_in_grill_mode],
+                   :on_transition => :start_spinning_the_food,
+                   :guard => :grill_button_pressed?    # the method grill_button_pressed? should choose the next state 
       end
 
       event :stop do
@@ -113,6 +118,8 @@ If you're using Rails + Mongoid + Bundler
       end
     end  
   end 
+
+=== Dice State Machine
 
   class Dice
 
