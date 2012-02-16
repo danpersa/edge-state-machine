@@ -5,6 +5,13 @@ It offers support for ActiveRecord and Mongoid
 
 {<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
+== Supported Features
+ * Multiple state machines per class each of them acting independently
+ * Find errors in state machine definitions as early as possible
+ * Transition guards
+ * Multiple actions executed on transitions
+ * Multiple actions executed on entering and exiting a state
+
 == Installation
 
 If you're using Rails + ActiveRecord + Bundler
@@ -57,7 +64,107 @@ If you're using Rails + Mongoid + Bundler
     end
   end
 
-= Credits
+== State Machine Examples
+We start implementing the State Machine, by giving some examples of state machines we want to run.
+
+  class Microwave
+    state_machine :microwave do  # name should be optional, if the name is not present, it should have a default name
+                                 # we give state machines names, so we can pun many machines inside a class
+      initial_state :unplugged # initial state should be optional, if the initial state is not present, the initial state will be the first defined state
+
+      state :unplugged
+
+      state :plugged
+
+      state :door_opened do
+        enter :light_on            # enter should be executed on entering the state
+        exit  :light_off           # exit method should be executed on exiting the state
+      end
+
+      state :door_closed
+
+      state :started_in_grill_mode do
+        enter lambda { |t| p "Entering hate" }   # should have support for Procs
+        exit  :grill_off
+      end
+
+      state :started do
+        enter :microwaves_on
+        exit  :microwaves_off
+      end
+
+      event :plug_in do
+        transition :from => :unplugged, :to => :plugged
+      end
+
+      event :open_door do
+        transition :from => :plugged, :to => :door_opened
+      end
+
+      event :close_door do
+        transition :from => :door_opened, :to => :door_closed, :on_transition => :put_food_in_the_microwave # we can put many actions in an Array for the on_transition parameter
+      end
+
+      event :start do
+        transition :from => :door_closed, :to => [:started, :started_in_grill_mode], :on_transition => :start_spinning_the_food, :guard => :grill_button_pressed?    # the method grill_button_pressed? should choose the next state 
+      end
+
+      event :stop do
+          transition :from => [:started, :started_in_grill_mode], :to => :door_closed
+      end
+    end  
+  end 
+
+  class Dice
+
+    state_machine do
+      state :one
+      state :two
+      state :three
+      state :four
+      state :five
+      state :six
+
+      event :roll do
+        transition :from => [:one, :two, :three, :four, :five, :six],
+                   :to => [:one, :two, :three, :four, :five, :six],
+                   :guard => :roll_result,
+                   :on_transition => :display_dice_rolling_animation
+      end
+    end
+
+    def roll_result
+      # return one of the states
+    end
+
+    def display_dice_rolling_animation
+      # draw the new position of the dice
+    end
+  end
+
+  class User
+    state_machine do
+      state :pending # first one is initial state
+      state :active
+      state :blocked # the user in this state can't sign in
+
+      event :activate do
+        transition :from => [:pending], :to => :active, :on_transition => :do_activate
+      end
+
+      event :block do
+        transition :from => [:pending, :active], :to => :blocked
+      end
+    end    
+  end
+
+== Notes
+
+For classes with multiple state machines, the state names, machine names must be unique per class.
+
+The same thing with the event names.
+
+== Credits
 
 The gem is based on Rick Olson's code of ActiveModel::StateMachine,
 axed from ActiveModel in {this
