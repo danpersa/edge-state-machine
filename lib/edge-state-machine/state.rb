@@ -34,13 +34,13 @@ module EdgeStateMachine
       @display_name ||= name.to_s.gsub(/_/, ' ').capitalize
     end
 
-    def ==(state)
-      if state.is_a? Symbol
-        name == state
-      elsif state.is_a? String
-        name == state
+    def ==(st)
+      if st.is_a? Symbol
+        name == st
+      elsif st.is_a? String
+        name == st
       else
-        name == state.name
+        name == st.name
       end
     end
   end

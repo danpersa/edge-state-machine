@@ -1,7 +1,7 @@
 = Edge State Machine
 
 Edge State Machine is a complete state machine solution.
-It offers support for ActiveRecord and Mongoid for persistence.
+It offers support for ActiveRecord, Mongoid and MongoMapper for persistence.
 
 {<img src="https://secure.travis-ci.org/danpersa/edge-state-machine.png"/>}[http://travis-ci.org/danpersa/edge-state-machine]
 
@@ -50,6 +50,31 @@ If you're using Rails + Mongoid + Bundler
   # in your AR models that will use the state machine
   include ::EdgeStateMachine
   include Mongoid::EdgeStateMachine
+
+  state_machine do
+    state :available # first one is initial state
+    state :out_of_stock
+    state :discontinue
+
+    event :discontinue do
+      transitions :to => :discontinue, :from => [:available, :out_of_stock], :on_transition => :do_discontinue
+    end
+    event :out_of_stock do
+      transitions :to => :out_of_stock, :from => [:available, :discontinue]
+    end
+    event :available do
+      transitions :to => :available, :from => [:out_of_stock], :on_transition => :send_alerts
+    end
+  end
+
+If you're using Rails + MongoMapper + Bundler
+
+  # in your Gemfile
+  gem "edge-state-machine", :require => ["edge-state-machine", "mongo_mapper/edge-state-machine"]
+
+  # in your models that will use the state machine
+  include ::EdgeStateMachine
+  include MongoMapper::EdgeStateMachine
 
   state_machine do
     state :available # first one is initial state
@@ -174,7 +199,8 @@ For other (more complex) examples, please check the following links:
 * {Examples without Persistence}[https://github.com/danpersa/edge-state-machine/tree/master/spec/non_persistent/samples]
 * {Examples with ActiveRecord}[https://github.com/danpersa/edge-state-machine/tree/master/spec/active_record/samples]
 * {Examples with Mongoid}[https://github.com/danpersa/edge-state-machine/tree/master/spec/mongoid/samples]
-
+* {Examples with Mongoid}[https://github.com/danpersa/edge-state-machine/tree/master/spec/mongoid/samples]
+* {Examples with MongoMapper}[https://github.com/danpersa/edge-state-machine/tree/master/spec/mongo_mapper/samples]
 == Notes
 
 For classes with multiple state machines, the state names, machine names must be unique per class.

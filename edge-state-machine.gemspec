@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.email       = ["dan.persa@gmail.com"]
   s.homepage    = "http://github.com/danpersa/edge-state-machine"
   s.summary     = %q{Edge State Machine}
-  s.description = %q{Edge State Machine is a complete state machine solution. It offers support for ActiveRecord and Mongoid for persistence.}
+  s.description = %q{Edge State Machine is a complete state machine solution. It offers support for ActiveRecord, Mongoid and MongoMapper for persistence.}
 
   s.rubyforge_project = "edge-state-machine"
 
@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 2.6'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'mongoid'
+  s.add_development_dependency 'mongo_mapper'
   s.add_development_dependency 'bson_ext'
   s.add_development_dependency 'sqlite3-ruby'
   s.add_development_dependency 'activerecord'
