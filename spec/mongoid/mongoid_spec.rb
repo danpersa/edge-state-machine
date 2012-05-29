@@ -4,7 +4,9 @@ describe 'mongoid state machine' do
 
   context 'existing mongo document' do
     before do
-      Mongoid.master.collections.reject { |c| c.name =~ /^system\./ }.each(&:drop)
+      session = Moped::Session.new([ 'localhost:27017' ])
+      session.use 'edge-state-machine-test'
+      session.drop
     end
 
     let :light do
@@ -118,7 +120,9 @@ describe 'mongoid state machine' do
 
   context 'timestamp' do
     before do
-      Mongoid.master.collections.reject { |c| c.name =~ /^system\./ }.each(&:drop)
+      session = Moped::Session.new([ 'localhost:27017' ])
+      session.use 'edge-state-machine-test'
+      session.drop
     end
 
     def create_order(state = nil)

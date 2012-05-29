@@ -3,7 +3,9 @@ require 'mongoid/mongoid_helper'
 describe DoubleMachineMongoid do
 
   before do
-    Mongoid.master.collections.reject { |c| c.name =~ /^system\./ }.each(&:drop)
+      session = Moped::Session.new([ 'localhost:27017' ])
+      session.use 'edge-state-machine-test'
+      session.drop
   end
 
   let :double_machine do

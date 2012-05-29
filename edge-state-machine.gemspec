@@ -20,10 +20,9 @@ Gem::Specification.new do |s|
 
 
   # specify any dependencies here; for example:
-  s.add_development_dependency 'rspec', '~> 2.6'
+  s.add_development_dependency 'rspec'
   s.add_development_dependency 'rake'
-  s.add_development_dependency 'mongoid'
-  s.add_development_dependency 'mongo_mapper'
+  s.add_development_dependency 'mongoid', '3.0.0.rc'
   s.add_development_dependency 'bson_ext'
   s.add_development_dependency 'sqlite3-ruby'
   s.add_development_dependency 'activerecord'
