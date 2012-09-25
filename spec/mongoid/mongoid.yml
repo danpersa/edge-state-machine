@@ -1,0 +1,6 @@
+test:
+  sessions:
+    default:
+      database: edge-state-machine-test
+      hosts:
+        - localhost:27017

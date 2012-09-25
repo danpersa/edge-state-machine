@@ -62,7 +62,7 @@ describe EdgeStateMachine::Event do
       event = EdgeStateMachine::Event.new(:event, @machine)
       obj = mock
       obj.stub!(:current_state).and_return(:open)
-      expect {event.fire(obj)}.should raise_error EdgeStateMachine::NoTransitionFound
+      expect {event.fire(obj)}.to raise_error EdgeStateMachine::NoTransitionFound
     end
   end
 end

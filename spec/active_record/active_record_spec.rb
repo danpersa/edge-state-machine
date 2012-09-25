@@ -49,7 +49,7 @@ describe 'active record state machine' do
     end
 
     it 'should raise error on transition to an invalid state' do
-      expect { light.yellow_on }.should raise_error EdgeStateMachine::NoTransitionFound
+      expect { light.yellow_on }.to raise_error EdgeStateMachine::NoTransitionFound
       light.current_state.should == :off
     end
 
@@ -72,14 +72,14 @@ describe 'active record state machine' do
 
     it 'should raise exception when model validation fails on transition' do
       validating_light = ValidatingTrafficLight.create!
-      expect {validating_light.reset!}.should raise_error ActiveRecord::RecordInvalid
+      expect {validating_light.reset!}.to raise_error ActiveRecord::RecordInvalid
       validating_light.red?.should == false
       validating_light.off?.should == true
     end
 
     it 'should state query method used in a validation condition' do
       validating_light = ConditionalValidatingTrafficLight.create!
-      #expect {validating_light.reset!}.should raise_error ActiveRecord::RecordInvalid
+      #expect {validating_light.reset!}.to raise_error ActiveRecord::RecordInvalid
       validating_light.off?.should == true
       validating_light.red?.should == false
     end
@@ -135,7 +135,7 @@ describe 'active record state machine' do
     # control case, no timestamp has been set so we should expect default behaviour
     it 'should not raise any exceptions when moving to placed' do
       @order = create_order
-      expect { @order.place! }.should_not raise_error
+      expect { @order.place! }.to_not raise_error
       @order.state.should == 'placed'
     end
   end

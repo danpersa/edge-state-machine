@@ -4,7 +4,9 @@ describe 'mongoid state machine' do
 
   context 'existing mongo document' do
     before do
-      Mongoid.master.collections.reject { |c| c.name =~ /^system\./ }.each(&:drop)
+      session = Moped::Session.new([ 'localhost:27017' ])
+      session.use 'edge-state-machine-test'
+      session.drop
     end
 
     let :light do
@@ -47,7 +49,7 @@ describe 'mongoid state machine' do
     end
 
     it 'should raise error on transition to an invalid state' do
-      expect { light.yellow_on }.should raise_error EdgeStateMachine::NoTransitionFound
+      expect { light.yellow_on }.to raise_error EdgeStateMachine::NoTransitionFound
       light.current_state.should == :off
     end
 
@@ -70,12 +72,12 @@ describe 'mongoid state machine' do
 
     it 'should raise exception when model validation fails on transition' do
       validating_light = MongoValidatingTrafficLight.create!
-      expect {validating_light.reset!}.should raise_error Mongoid::Errors::Validations
+      expect {validating_light.reset!}.to raise_error Mongoid::Errors::Validations
     end
 
     it 'should state query method used in a validation condition' do
       validating_light = MongoConditionalValidatingTrafficLight.create!
-      #expect {validating_light.reset!}.should raise_error Mongoid::RecordInvalid
+      #expect {validating_light.reset!}.to raise_error Mongoid::RecordInvalid
       validating_light.off?.should == true
     end
 
@@ -118,7 +120,9 @@ describe 'mongoid state machine' do
 
   context 'timestamp' do
     before do
-      Mongoid.master.collections.reject { |c| c.name =~ /^system\./ }.each(&:drop)
+      session = Moped::Session.new([ 'localhost:27017' ])
+      session.use 'edge-state-machine-test'
+      session.drop
     end
 
     def create_order(state = nil)
@@ -128,7 +132,7 @@ describe 'mongoid state machine' do
     # control case, no timestamp has been set so we should expect default behaviour
     it 'should not raise any exceptions when moving to placed' do
       @order = create_order
-      expect { @order.place! }.should_not raise_error
+      expect { @order.place! }.to_not raise_error
       @order.state.should == 'placed'
     end
   end
