@@ -71,7 +71,7 @@ module ActiveRecord
     module ClassMethods
       def add_scope(state, machine_name)
         machine = state_machines[machine_name]
-        scope state.name, where(machine.persisted_variable_name.to_sym => state.name.to_s)
+        scope state.name, -> { where(machine.persisted_variable_name.to_sym => state.name.to_s) }
       end
     end
   end

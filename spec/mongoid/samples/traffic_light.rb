@@ -34,7 +34,7 @@ class MongoTrafficLight
 end
 
 class MongoProtectedTrafficLight < MongoTrafficLight
-  attr_protected :state
+  #attr_protected :state
 end
 
 class MongoValidatingTrafficLight < MongoTrafficLight

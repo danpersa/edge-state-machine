@@ -81,7 +81,7 @@ module EdgeStateMachine
     end
 
     def set_current_state(new_state, machine_name = :default, options = {})
-      save_to_persistence(new_state.name.to_s, machine_name, options) if self.respond_to? :save_to_persistence
+      save_to_persistence(new_state.name.to_s, machine_name, options) if self.respond_to?(:save_to_persistence, true)
       @current_states[machine_name] = new_state
     end
   end
